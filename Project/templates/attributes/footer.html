@@ -1,0 +1,51 @@
+{% block bootstrap %}
+<!-- footer bootstrap -->
+<link href="/static/css/footer.css" rel="stylesheet">
+{% endblock %}
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-6 col-md-3 item">
+                <h3>Site Links</h3>
+                <ul>
+                    <li><a href="{{ url_for('index') }}">Home page</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('boekingen') }}">Mijn Boekingen</a></li>
+                    <li><a href="{{ url_for('logout') }}">Uitloggen</a></li>
+                    {% else %}
+                    <li><a href="{{ url_for('login') }}">Login</a></li>
+                    <li><a href="{{ url_for('register') }}">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-6 item text">
+                <h3>Zee en Duin</h3>
+                <p>Ontdek het ultieme vakantiegevoel bij Bungalowpark Zee en Duin! Wij bieden comfortabele bungalows
+                    voor 4, 6, en 8 personen. Bij ons staat jouw comfort voorop, en daarom hebben we de grootte van de
+                    huisjes duidelijk gedefinieerd. Bekijk de beschikbaarheid, kies het perfecte huisje voor jouw
+                    gezelschap en geniet van een onvergetelijk verblijf aan de prachtige kust. Ontdek de charme van Zee
+                    en Duin en reserveer vandaag nog jouw ideale vakantiehuis!</p>
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <h5 class="text-md-right">Neem Contact Met Ons Op</h5>
+            <hr>
+        </div>
+        <div class="col-md-5">
+            <form id="send_email" method="post">
+                <fieldset class="form-group">
+                    <input class="form-control" id="exampleInputEmail1" placeholder="Geef E-mailadres" required type="email">
+                </fieldset>
+                <fieldset class="form-group">
+                    <textarea class="form-control" id="exampleMessage" placeholder="Bericht" required></textarea>
+                </fieldset>
+                <fieldset class="form-group text-xs-right">
+                    <button class="white btn btn-secondary-outline btn-lg" type="submit">Send</button>
+                </fieldset>
+            </form>
+        </div>
+        <p class="copyright">Zee en Duin © 2024</p>
+    </div>
+</footer>

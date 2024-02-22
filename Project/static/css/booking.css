@@ -1,0 +1,136 @@
+.huis-img {
+    width: 200px;
+    height: 200px;
+}
+
+huis-p {
+    margin: 0px;
+}
+
+*, html {
+	padding: 0;
+	margin: 0;
+}
+body {
+	padding: 0;
+	margin: 0;
+	background: #fff;
+	color: #000;
+	font-size: 15px;
+	font-family: Arial;
+}
+/*.clear {
+	clear: both
+}*/
+#productbox {
+	/*float: left;*/
+	display: block;
+	margin: 8px;
+    width: 794px;
+}
+.product {
+    display: flex;
+    margin-left: 48px;
+	width: 100%;
+	/*float: left;*/
+	padding-bottom: 8px;
+    margin-bottom:10px;
+    border-bottom: 1px solid #e4e4e4;
+}
+
+.product_content {
+	/*float: left;*/
+	margin-left: 12px;
+	width: 552px;
+	text-align: left;
+}
+
+.product:last-child {
+  border-bottom: none;
+}
+.product_img {
+	/*float: left;*/
+	width: auto;
+	height: 200px;
+	border-radius: 3px;
+	border: 1px solid #e4e4e4;
+}
+.product_img img{
+	/*float: left;*/
+	width: auto;
+	height: 200px;
+	border-radius: 3px;
+	border: 1px solid #e4e4e4;
+}
+
+.product_title {
+	/*float: left;*/
+	margin-top: -2px;
+	text-align: left;
+	color: #0654ba;
+}
+.product_title a {
+	font-weight: normal;
+	font-size: 16px;
+	color: #0654ba;
+	text-decoration: none;
+}
+.product_title a:hover {
+	text-decoration: underline;
+}
+.product_special {
+	/*float: left;*/
+	margin-top: 6px;
+	font-size: 14px;
+	color: #767676;
+}
+.product_info {
+	/*float: left;*/
+	margin-top: 5px;
+	width: 275px;
+	height: auto;
+	background: #fff;
+}
+.product_price {
+	/*float: left;*/
+	font-size: 20px;
+	font-weight: bold;
+	color: #333;
+	line-height: 1.1;
+}
+.booking_button a {
+	/*float: left;*/
+	width: 120px;
+	height: 50px;
+	margin-top: 6px;
+	font-size: 16px;
+	font-weight: bold;
+	color: #000000;
+	background-color: #de3163;
+}
+.additional {
+	/*float: left;*/
+	margin-top: 10px;
+	width: 275px;
+	height: auto;
+	background: #fff;
+}
+.country {
+	/*float: left;*/
+	margin-top: 4px;
+	font-size: 13px;
+	color: #767676;
+}
+.other {
+	/*float: left;*/
+	margin-top: 6px;
+	font-size: 13px;
+	color: #767676;
+}
+.topseller {
+	/*float: left;*/
+	margin-top: 15px;
+	width: 80px;
+	height: 19px;
+	background: url(http://s23.postimg.org/e7dqd4izf/top.png);
+}

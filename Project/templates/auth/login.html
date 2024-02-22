@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+<!-- hier onder komt de titel -->
+{% block title %}
+Login - Zee en Duin
+{% endblock %}
+
+<!-- css style sheet -->
+{% block css %}
+<link href="/static/css/style.css" rel="stylesheet">
+<link href="/static/css/auth.css" rel="stylesheet">
+{% endblock %}
+
+<!-- hier onder komt de inhoud van dit html bestand -->
+{% block content %}
+
+<!-- de navbar voor de pagina-->
+{% include 'attributes/navbar.html' %}
+
+<!-- de pagina inhoud -->
+<div id="main">
+    <form id="login_data" method="POST">
+        <div class="container">
+            <h1>Login</h1>
+            {{ form.hidden_tag() }}
+            {% if form.email.errors %}
+                {{ form.email.label }} {{ form.email() }}<br>
+                <div class="inv-feedback">
+                    {% for error in form.email.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <i aria-hidden="true" class="fa fa-user"></i>
+                {{ form.email.label }} {{ form.email() }}<br>
+            {% endif %}
+
+            {% if form.wachtwoord.errors %}
+                {{ form.wachtwoord.label }} {{ form.wachtwoord() }}<br>
+                <div class="inv-feedback">
+                    {% for error in form.wachtwoord.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <i aria-hidden="true" class="fa fa-user"></i>
+                {{ form.wachtwoord.label }} {{ form.wachtwoord() }}<br>
+            {% endif %}
+            {{ form.submit() }}<br>
+            {{ form.remember.label }} {{ form.remember }}<br>
+            <span class="psw">Wachtwoord
+                <a href="/reset_password">vergeten</a>?
+            </span><br>
+            <span class="psw">Nog geen account?
+                <a href="/register">Registreer hier</a>!
+            </span>
+        </div>
+    </form>
+</div>
+
+<!-- de footer voor de pagina-->
+{% include 'attributes/footer.html' %}
+
+{% endblock %}

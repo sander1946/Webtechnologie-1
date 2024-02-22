@@ -1,0 +1,51 @@
+#submit {
+  background-color: #04AA6D;
+  color: white;
+  padding: 10px 20px;
+  margin: 8px 8px;
+  border: none;
+  cursor: pointer;
+  width: 365px;
+}
+
+form {
+    margin: auto;
+    display: table;
+    text-align: center;
+}
+
+#email {
+    margin-left: 16px;
+    width: 250px;
+}
+
+#wachtwoord {
+    margin-left: 9px;
+    width: 250px;
+}
+
+#rep_wachtwoord {
+    margin-left: 13px;
+    width: 250px;
+}
+
+#voornaam {
+    margin-left: 57px;
+    width: 123px;
+}
+
+#achternaam {
+    margin-left: 4px;
+    width: 123px;
+}
+
+#telefoon {
+    margin-left: 39px;
+    margin-bottom: 10px;
+    width: 250px;
+}
+
+#submit:hover {
+  opacity: 0.8;
+}
+

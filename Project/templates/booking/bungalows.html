@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+<!-- hier onder komt de titel -->
+{% block title %}
+Bungalows - Zee en Duin
+{% endblock %}
+
+<!-- css style sheet -->
+{% block css %}
+<link href="/static/css/style.css" rel="stylesheet">
+<link href="/static/css/booking.css" rel="stylesheet">
+{% endblock %}
+
+<!-- hier onder komt de inhoud van dit html bestand -->
+{% block content %}
+
+<!-- de navbar voor de pagina-->
+{% include 'attributes/navbar.html' %}
+
+<!-- de pagina inhoud -->
+<div id="main">
+    <!-- start block -->
+    {% for bungalow in bungalow_data %}
+    <!-- start product -->
+    <div class="product">
+        <div class="product_img"><img src="{{ bungalow.img }}"></div>
+        <div class="product_content">
+            <div class="product_title"><a href="/boek/{{ bungalow.id }}">{{ bungalow.title }}</a></div>
+            <div class="clear"></div>
+            <div class="product_info">
+                <div class="product_price">€{{ bungalow.prijs }} per week</div>
+                <div class="clear"></div>
+                <div class="product_info">Geschikt voor: {{ bungalow.aantal_pers }} personen</div>
+                <div class="product_info">Grote van: {{ bungalow.grote }} m2</div>
+                <div class="product_info">{{ bungalow.opmerking }}</div>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+            <div class="booking_button">
+                <a href="/boek/{{ bungalow.id }}">Boek nu!</a>
+            </div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="clear"></div>
+    <!-- end of product -->
+    {% endfor %}
+    <!-- end of block -->
+</div>
+
+<!-- de footer voor de pagina-->
+{% include 'attributes/footer.html' %}
+
+{% endblock %}

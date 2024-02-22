@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+<!-- hier onder komt de titel -->
+{% block title %}
+Zee en Duin
+{% endblock %}
+
+<!-- css style sheet -->
+{% block css %}
+<link href="/static/css/style.css" rel="stylesheet">
+{% endblock %}
+
+<!-- hier onder komt de inhoud van dit html bestand -->
+{% block content %}
+
+<!-- de navbar voor de pagina-->
+{% include 'attributes/navbar.html' %}
+
+<!-- de pagina inhoud -->
+<div id="main" class="m-3">
+    <h2>Welcome to BungalowPark Relaxoasis!</h2>
+    <h3>Discover Our Accommodations</h3>
+    <p>Our luxury bungalows are designed to meet all your needs. Whether you're looking for a romantic getaway for two, a family vacation, or a retreat with friends, we have the perfect accommodation for you.</p>
+    <h3>Facilities and Activities</h3>
+    <p>Leave your worries behind as you enjoy our extensive facilities and activities. From heated pools and wellness centers to adventurous sports and kids' clubs - there's something for everyone.</p>
+    <h3>Environment and Nature</h3>
+    <p>Our bungalow park is surrounded by beautiful nature. Explore the nearby forests, lakes, and hiking trails. Discover the local flora and fauna or take a relaxing stroll along the scenic routes.</p>
+    <h3>Special Offers</h3>
+    <p>Stay updated on our special offers and packages to make the most of your stay. Whether it's seasonal discounts, last-minute deals, or packages with extras, there's always a way to save.</p>
+    <h3>Book Now</h3>
+    <p>Book your dream vacation today. With easy online reservations and flexible booking options, we are ready to welcome you for an unforgettable stay at BungalowPark Relaxoasis.</p>
+    <p>Don't wait any longer and discover the perfect balance of comfort, adventure, and relaxation at our bungalow park. We look forward to welcoming you soon!</p>
+
+</div>
+
+<!-- de footer voor de pagina-->
+{% include 'attributes/footer.html' %}
+
+{% endblock %}

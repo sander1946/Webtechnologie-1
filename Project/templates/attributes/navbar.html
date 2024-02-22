@@ -1,0 +1,48 @@
+<!-- code voor de navbar -->
+<nav class="navbar navbar-expand-sm bg-dark navbar-dark fixed-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><img id="nav-logo" src="/static/img/logo.png"></a>
+        <button class="navbar-toggler" data-bs-target="#collapsibleNavbar" data-bs-toggle="collapse" type="button">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/bungalows">Bungalows</a>
+                </li>
+                {% if current_user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('boekingen') }}">Mijn Boekingen</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('logout') }}">Uitloggen</a>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('register') }}">Registreer</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- code for the flask alert box -->
+<div id="alert_box">
+    {% for categorie, message in get_flashed_messages(with_categories=True) %}
+    {% if categorie == "error" %}
+    <div class="alert alert-danger">{{ message }}</div>
+    {% elif categorie == "info" or categorie == "message" %}
+    <div class="alert alert-info">{{ message }}</div>
+    {% else %}
+    <div class="alert alert-info">{{ message }} <a href="{{ categorie }}">deze</a></div>
+    {% endif %}
+
+    {% endfor %}
+</div>

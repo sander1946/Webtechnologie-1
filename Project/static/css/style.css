@@ -1,0 +1,25 @@
+@import url(https://fonts.googleapis.com/css?family=Alegreya+Sans:300);
+
+body {
+    font-family: 'Alegreya Sans', sans-serif;
+}
+
+#main {
+    margin-top:80px;
+    min-height:65vh;
+    height: auto;
+}
+
+#nav-logo {
+    height: 40px;
+    width: 40px;
+}
+
+#alert_box {
+    margin-top: 70px;
+}
+
+.inv-feedback {
+    color: #ff0000;
+    font-size: 13px;
+}

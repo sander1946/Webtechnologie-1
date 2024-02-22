@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+<!-- hier onder komt de titel -->
+{% block title %}
+huisjes - Zee en Duin
+{% endblock %}
+
+<!-- css style sheet -->
+{% block css %}
+<link href="/static/css/style.css" rel="stylesheet">
+<link href="/static/css/booking.css" rel="stylesheet">
+{% endblock %}
+
+<!-- hier onder komt de inhoud van dit html bestand -->
+{% block content %}
+
+<!-- de navbar voor de pagina-->
+{% include 'attributes/navbar.html' %}
+
+<!-- de pagina inhoud -->
+<div id="main">
+    <!-- start block -->
+    {% for bungalow in bungalow_data %}
+    <!-- start product -->
+    <div class="product">
+        <div class="product_img"><img src="{{ bungalow.img }}"></div>
+        <div class="product_content">
+            <form id="boek_bungalow" method="POST">
+                <div class="container">
+                    <div class="product_title">{{ bungalow.title }}</div>
+                    <div class="clear"></div>
+                    <div class="product_info">
+                        <div class="product_price">€{{ bungalow.prijs }} per week</div>
+                        <div class="clear"></div>
+                        <div class="product_info">geschikt voor: {{ bungalow.aantal_pers }} personen</div>
+                        <div class="product_info">grote van: {{ bungalow.grote }} m2</div>
+                        <div class="product_info">{{ bungalow.opmerking }}</div>
+                        <div class="product_info">De huidige week nummer is: {{ week }}</div>
+                        <div class="clear"></div>
+                            {{ form.hidden_tag() }}
+                            {% if form.week.errors %}
+                                {{ form.week.label }} {{ form.week() }}<br>
+                                <div class="inv-feedback">
+                                    {% for error in form.week.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <i aria-hidden="true" class="fa fa-user"></i>
+                                {{ form.week.label }} {{ form.week() }}<br>
+                            {% endif %}
+                            {{ form.submit }}
+                        </div>
+                    </div>
+                </form>
+            <div class="clear"></div>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div class="clear"></div>
+    <!-- end of product -->
+    {% endfor %}
+    <!-- end of block -->
+</div>
+
+<!-- de footer voor de pagina-->
+{% include 'attributes/footer.html' %}
+
+{% endblock %}
