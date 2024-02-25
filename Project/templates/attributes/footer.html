@@ -34,16 +34,32 @@
             <hr>
         </div>
         <div class="col-md-5">
-            <form id="send_email" method="post">
+            <form id="send_email" action="/feedback" method="post">
                 <fieldset class="form-group">
-                    <input class="form-control" id="exampleInputEmail1" placeholder="Geef E-mailadres" required type="email">
+                    <input class="form-control" id="Feedback_Email" placeholder="Geef E-mailadres" required type="email">
                 </fieldset>
                 <fieldset class="form-group">
-                    <textarea class="form-control" id="exampleMessage" placeholder="Bericht" required></textarea>
+                    <textarea class="form-control" id="Feedback_Message" placeholder="Bericht" required></textarea>
                 </fieldset>
                 <fieldset class="form-group text-xs-right">
-                    <button class="white btn btn-secondary-outline btn-lg" type="submit">Send</button>
+                    <button class="white btn btn-secondary-outline btn-lg" onclick="submit_form()">Send</button>
                 </fieldset>
+                <script>
+                    function send_form() {
+                        let send = document.getElementById("send_email")
+                        send.submit()
+                    }
+
+                    function submit_form() {
+                        let email = document.getElementById("Feedback_Email")
+                        let message = document.getElementById("Feedback_Message")
+                        let next = document.getElementById("hidden_url")
+                        let send = document.getElementById("send_email")
+                        send.setAttribute('action', '/feedback' + '?email=' + email.value + '&message=' + message.value + "&next=" + window.location.href);
+                        send_form()
+                    }
+
+                </script>
             </form>
         </div>
         <p class="copyright">Zee en Duin © 2024</p>

@@ -3,13 +3,25 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, login_required, logout_user, current_user
 from random import randint, choice
 from Project.models import User, bungalow_data, bungalow_types, booking_data, populate
-from Project.forms import loginForm, registerForm, resetRequestForm, resetForm, boekForm, wijzigForm
+from Project.forms import loginForm, registerForm, resetRequestForm, resetForm, boekForm, wijzigForm, annuleerForm
 import datetime
 
 
 @app.route('/', methods=["GET"])
 def index():
     return render_template("home.html")
+
+
+@app.route('/feedback', methods=["POST"])
+def feedback():
+    if request.method == "POST":
+        flash(f"Het bericht is verzonden!")
+        print(request.args.get("email"))
+        print(request.args.get("message"))
+        next_page = request.args.get("next")
+        if next_page is not None:
+            return redirect(next_page)
+    return redirect(url_for("index"))
 
 
 @app.route('/logout', methods=["GET"])
@@ -32,7 +44,7 @@ def login():
                       f"Vraag een nieuw wachtwoord aan als je deze bent vergeten!", "error")
                 return redirect(url_for("login"))
             if user.check_password(form.wachtwoord.data) and user is not None:
-                login_user(user)
+                login_user(user, remember=form.remember.data)
                 flash(f"Succesvol ingelogd!", "info")
                 # If a user was trying to visit a page that requires a login,
                 # flask saves that URL as 'next'.
@@ -126,7 +138,7 @@ def reset_password_token(token):
 
 @app.route('/boek', methods=["GET"])
 @login_required
-def boek_main():
+def boek_inv():
     return redirect(url_for("bungalows"))
 
 
@@ -182,20 +194,19 @@ def boekingen():
 
 @app.route('/wijzig', methods=["GET"])
 @login_required
-def boek_main():
+def wijzig_inv():
     return redirect(url_for("boekingen"))
 
 
 @app.route('/wijzig/<bungalow>', methods=["GET"])
 @login_required
-def boek_main():
+def wijzig_inv_inv():
     return redirect(url_for("boekingen"))
 
 
 @app.route('/wijzig/<bungalow>/<token>', methods=["GET", "POST"])
 @login_required
-def boeking(bungalow, token):
-    print(bungalow)
+def wijzig(bungalow, token):
     form = wijzigForm(week=datetime.date.today().isocalendar().week)
     bungalow = []
     booking_info = (db.session.query(booking_data, bungalow_data, bungalow_types).select_from(booking_data).
@@ -231,6 +242,52 @@ def boeking(bungalow, token):
         return render_template("booking/wijzig.html")
 
 
+@app.route('/annuleer', methods=["GET"])
+@login_required
+def annuleer_inv():
+    return redirect(url_for("boekingen"))
+
+
+@app.route('/annuleer/<bungalow>', methods=["GET"])
+@login_required
+def annuleer_inv_inv():
+    return redirect(url_for("boekingen"))
+
+
+@app.route('/annuleer/<bungalow>/<token>', methods=["GET", "POST"])
+@login_required
+def annuleer(bungalow, token):
+    form = annuleerForm()
+    bungalow = []
+    booking_info = (db.session.query(booking_data, bungalow_data, bungalow_types).select_from(booking_data).
+                    join(bungalow_types, booking_data.bungalow_id == bungalow_data.id)
+                    .join(bungalow_data, bungalow_data.type_id == bungalow_types.id).filter(booking_data.id == token)
+                    .first())
+    if booking_info:
+        bookings, data, types = booking_info
+        bungalow_info = {"img": "/static/img/stock.png", "title": data.naam, "prijs": types.prijs,
+                         "aantal_pers": types.aantal, "grote": randint(types.aantal * 45, types.aantal * 55),
+                         "opmerking": choice(["Knus", "Sfeervol", "Comfortabel", "Rustiek", "Modern", "Landelijk",
+                                              "Praktisch", "Gezellig", "Stijlvol", "Duurzaam"]), "id": data.id,
+                         "week": bookings.week}
+        bungalow.append(bungalow_info)
+        if form.validate_on_submit():
+            confirm = form.confirm.data
+            if confirm == "Ja":
+                flash(f"Boeking van bungalow '{data.naam}' is geannuleerd voor week {bookings.week}")
+                boeking_new = booking_data.query.get(token)
+                db.session.delete(boeking_new)
+                db.session.commit()
+                return redirect(url_for("boekingen"))
+            else:
+                flash(f"Bungalow: '{data.naam}' is niet geannuleerd!", "info")
+                return redirect(url_for("boekingen"))
+        return render_template("booking/annuleer.html", bungalow_data=bungalow, form=form,
+                               week=datetime.date.today().isocalendar().week)
+    else:
+        return render_template("booking/annuleer.html")
+
+
 @app.route('/bungalows', methods=["GET"])
 def bungalows():
     bungalow_lijst = []
@@ -250,4 +307,4 @@ def bungalows():
 
 
 if __name__ == '__main__':
-    app.run(host='127.0.0.1', port=80)
+    app.run(host='127.0.0.1', port=80, debug=True)

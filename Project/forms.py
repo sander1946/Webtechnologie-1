@@ -107,9 +107,14 @@ class wijzigForm(FlaskForm):
         for week in data:
             weeks.append(week[0])
         coises = [x for x in range(1, 53) if x not in weeks]
-        coises.append("annuleer boeking")
         self.week.choices = coises
 
-    week = SelectField("Nieuwe Week?: ", [InputRequired(message="Dit veld is vereist")], coerce=str)
-    submit = SubmitField("Boek Bungalow",
+    week = SelectField("Nieuwe Week?: ", [InputRequired(message="Dit veld is vereist")], coerce=int)
+    submit = SubmitField("Verander Boeking",
+                         render_kw={"class": "btn btn-primary"})
+
+
+class annuleerForm(FlaskForm):
+    confirm = SelectField("Weet je het zeker?: ", [InputRequired(message="Dit veld is vereist")], choices=["Nee", "Ja"], coerce=str)
+    submit = SubmitField("Bevestig",
                          render_kw={"class": "btn btn-primary"})

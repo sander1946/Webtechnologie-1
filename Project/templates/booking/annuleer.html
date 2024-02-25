@@ -2,7 +2,7 @@
 
 <!-- hier onder komt de titel -->
 {% block title %}
-huisjes - Zee en Duin
+Wijzig Wachtwoord - Zee en Duin
 {% endblock %}
 
 <!-- css style sheet -->
@@ -32,19 +32,23 @@ huisjes - Zee en Duin
                     <div class="product_info">
                         <div class="product_price">€{{ bungalow.prijs }} per week</div>
                         <div class="clear"></div>
-                        <div class="product_info">geschikt voor: {{ bungalow.aantal_pers }} personen</div>
-                        <div class="product_info">grote van: {{ bungalow.grote }} m2</div>
+                        <div class="product_info">Geschikt voor: {{ bungalow.aantal_pers }} personen</div>
+                        <div class="product_info">Grote van: {{ bungalow.grote }} m2</div>
                         <div class="product_info">Geboekt voor week: {{ bungalow.week }}</div>
                         <div class="clear"></div>
-                            <div class="booking_button">
-                                <a href="/wijzig/{{ bungalow.booking_id }}" class="link-warning link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Verander boeking</a>
-                            </div>
-                            <div class="additional_button">
-                                <a href="/boek/{{ bungalow.id }}" class="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Boek nog een week</a>
-                            </div>
-                            <div class="annuleer_button">
-                                <a href="/annuleer/{{ bungalow.booking_id }}" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Annuleer boeking</a>
-                            </div>
+                            {{ form.hidden_tag() }}
+                            {% if form.confirm.errors %}
+                                {{ form.confirm.label }} {{ form.confirm() }}<br>
+                                <div class="inv-feedback">
+                                    {% for error in form.confirm.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <i aria-hidden="true" class="fa fa-user"></i>
+                                {{ form.confirm.label }} {{ form.confirm() }}<br>
+                            {% endif %}
+                            {{ form.submit }}
                         </div>
                     </div>
                 </form>
