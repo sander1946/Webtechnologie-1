@@ -211,7 +211,6 @@ def boek(token):
 @login_required
 def wijzigBungalow(bungalow, token):
     forms = []
-    week=datetime.date.today().isocalendar().week
     booking = BookingData.query.filter_by(id=token).first()
     bungalow_lijst = []
     booking_data_sub = db.session.query(BookingData.bungalow_id).filter(BookingData.week == booking.week)
