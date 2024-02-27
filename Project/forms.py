@@ -1,11 +1,11 @@
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, BooleanField, SubmitField, StringField, TelField, ValidationError, SelectField
 from wtforms.validators import Email, Length, EqualTo, InputRequired
-from Project.models import User, booking_data
+from Project.models import User, BookingData
 from flask import request
 
 
-class loginForm(FlaskForm):
+class LoginForm(FlaskForm):
     email = StringField("E-mailadres:", [InputRequired(
                        message="Dit veld is vereist"),
                        Email(
@@ -19,7 +19,7 @@ class loginForm(FlaskForm):
                          render_kw={"class": "btn btn-primary"})
 
 
-class registerForm(FlaskForm):
+class RegisterForm(FlaskForm):
     email = StringField("E-mailadres:", [InputRequired(
                        message="Dit veld is vereist"),
                        Email(
@@ -55,7 +55,7 @@ class registerForm(FlaskForm):
             raise ValidationError('Dit e-mailadres staat al geregistreerd!')
 
 
-class resetRequestForm(FlaskForm):
+class ResetRequestForm(FlaskForm):
     email = StringField("E-mailadres:", [InputRequired(
                        message="Dit veld is vereist"),
                        Email(
@@ -65,7 +65,7 @@ class resetRequestForm(FlaskForm):
                          render_kw={"class": "btn btn-primary"})
 
 
-class resetForm(FlaskForm):
+class ResetForm(FlaskForm):
     password = PasswordField("Wachtwoord:", [InputRequired(
                              message="Dit veld is vereist"),
                              EqualTo("rep_password",
@@ -79,13 +79,13 @@ class resetForm(FlaskForm):
     submit = SubmitField("Vraag wachtwoord reset aan", render_kw={"class": "btn btn-primary"})
 
 
-class boekForm(FlaskForm):
+class BoekForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         url = request.path
         url = url.split("/")
         token = url[-1]
-        data = booking_data.query.with_entities(booking_data.week).filter_by(bungalow_id=token)
+        data = BookingData.query.with_entities(BookingData.week).filter_by(bungalow_id=token)
         weeks = []
         for week in data:
             weeks.append(week[0])
@@ -96,13 +96,13 @@ class boekForm(FlaskForm):
                          render_kw={"class": "btn btn-primary"})
 
 
-class wijzigForm(FlaskForm):
+class WijzigForm(FlaskForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         url = request.path
         url = url.split("/")
         bungalow = url[-2]
-        data = booking_data.query.with_entities(booking_data.week).filter_by(bungalow_id=bungalow)
+        data = BookingData.query.with_entities(BookingData.week).filter_by(bungalow_id=bungalow)
         weeks = []
         for week in data:
             weeks.append(week[0])
@@ -114,7 +114,7 @@ class wijzigForm(FlaskForm):
                          render_kw={"class": "btn btn-primary"})
 
 
-class annuleerForm(FlaskForm):
+class AnnuleerForm(FlaskForm):
     confirm = SelectField("Weet je het zeker?: ", [InputRequired(message="Dit veld is vereist")], choices=["Nee", "Ja"], coerce=str)
     submit = SubmitField("Bevestig",
                          render_kw={"class": "btn btn-primary"})

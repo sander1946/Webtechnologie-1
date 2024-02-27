@@ -2,22 +2,23 @@ from Project import app, db
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, login_required, logout_user, current_user
 from random import randint, choice
-from Project.models import User, bungalow_data, bungalow_types, booking_data, populate
-from Project.forms import loginForm, registerForm, resetRequestForm, resetForm, boekForm, wijzigForm, annuleerForm
+from Project.models import User, BungalowData, BungalowTypes, BookingData, populate
+from Project.forms import LoginForm, RegisterForm, ResetRequestForm, ResetForm, BoekForm, WijzigForm, AnnuleerForm
 import datetime
 
 
 @app.route('/', methods=["GET"])
 def index():
+    """Deze functie wordt aangeroepen als de user naar de home pagina gaat"""
     return render_template("home.html")
 
 
 @app.route('/feedback', methods=["POST"])
 def feedback():
+    """ Deze functie wordt aangeroepen als de user feedback geeft, stuur een flash message en
+        stuurt de user terug naar de pagina waar ze vandaan kwamen of weer naar de home pagina"""
     if request.method == "POST":
         flash(f"Het bericht is verzonden!")
-        print(request.args.get("email"))
-        print(request.args.get("message"))
         next_page = request.args.get("next")
         if next_page is not None:
             return redirect(next_page)
@@ -27,6 +28,7 @@ def feedback():
 @app.route('/logout', methods=["GET"])
 @login_required
 def logout():
+    """Deze functie wordt aangeroepen als de user uitlogt en stuur een flash message"""
     logout_user()
     flash('Je bent nu uitgelogd!', 'info')
     return redirect(url_for('index'))
@@ -34,45 +36,61 @@ def logout():
 
 @app.route('/login', methods=["GET", "POST"])
 def login():
-    form = loginForm()
+    """Deze functie wordt aangeroepen als de user naar de login pagina gaat.
+    Als de user al is ingelogd word hij naar de home pagina toe gestuurd"""
+    form = LoginForm()
+    # check of de user al is ingelogd
+    if current_user.is_authenticated:
+        flash(f"Je bent al ingelogd!", "info")
+        return redirect(url_for("index"))
+    # check of de form is beantwoord (POST request)
     if form.validate_on_submit():
+        # check of de form is ingevuld
         if form.email.data != "" and form.wachtwoord.data != "":
-            # Grab the user from our User Models table
             user = User.query.filter_by(email=form.email.data).first()
+            # check of de email is geregistreerd
             if user is None:
                 flash(f"De email en/of wachtwoord is incorrect! "
                       f"Vraag een nieuw wachtwoord aan als je deze bent vergeten!", "error")
                 return redirect(url_for("login"))
+            # check of het wachtwoord klopt
             if user.check_password(form.wachtwoord.data) and user is not None:
                 login_user(user, remember=form.remember.data)
                 flash(f"Succesvol ingelogd!", "info")
-                # If a user was trying to visit a page that requires a login,
-                # flask saves that URL as 'next'.
+                # Als de user van een andere pagina komt dan de login pagina, stuur hem dan terug naar die pagina
                 next_page = request.args.get('next')
-
-                # So let's now check if that next exists, otherwise we'll go to
-                # the welcome page.
                 if next_page is None or not next_page[0] == '/':
                     next_page = url_for('bungalows')
                 return redirect(next_page)
             else:
+                # als het wachtwoord niet klopt
                 flash(f"De email en/of wachtwoord is incorrect! "
                       f"Vraag een nieuw wachtwoord aan als je deze bent vergeten!", "error")
                 return redirect(url_for("login"))
         else:
+            # de email en/of wachtwoord niet is ingevuld
             flash("Vul een geldig e-mailadres en wachtwoord in!", "error")
             return redirect(url_for("login"))
     else:
+        # als de form niet is beantwoord (GET request)
         return render_template("auth/login.html", form=form)
 
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
-    form = registerForm()
+    """Deze functie wordt aangeroepen als de user naar de register pagina gaat"""
+    form = RegisterForm()
+    # check of de user al is ingelogd
+    if current_user.is_authenticated:
+        flash("Je bent al ingelogd!", "info")
+        return redirect(url_for("index"))
+    # check of de form is beantwoord (POST request)
     if form.validate_on_submit():
+        # check of de form is ingevuld
         if (form.email.data != "" and form.wachtwoord.data != "" and form.voornaam.data != ""
                 and form.achternaam.data != "" and form.telefoon.data != ""):
             user = User.query.filter_by(email=form.email.data)
+            # check of de email al is geregistreerd
             if not user.all():
                 new_cur = User(email=form.email.data,
                                password=form.wachtwoord.data,
@@ -84,43 +102,57 @@ def register():
                 flash("Successfully registered, je kunt nu inloggen!", "info")
                 return redirect(url_for("login"))
             else:
+                # als de email al is geregistreerd
                 flash("Deze email is al geregistreerd! Log in plaats daarvan in!", "error")
                 return redirect(url_for("login"))
         else:
+            # als de form niet is ingevuld
             flash("Alle gegevens moeten in gevuld zijn!", "error")
             return redirect(url_for("register"))
     else:
+        # als de form niet is beantwoord (GET request)
         return render_template("auth/register.html", form=form)
 
 
 @app.route('/reset_password', methods=["GET", "POST"])
 def reset_password():
-    form = resetRequestForm()
-    if form.is_submitted():
-        form.validate()
+    """Deze functie wordt aangeroepen als de user naar de reset password pagina gaat"""
+    form = ResetRequestForm()
+    # check of de form is beantwoord (POST request)
+    if form.validate_on_submit():
+        # check of de form is ingevuld
         if form.email.data != "":
             user = User.query.filter_by(email=form.email.data)
             if not user.all():
+                # als de email niet is geregistreerd
                 flash(f"Dit email heeft geen nog geen account, maak er een aan!", "error")
                 return redirect(url_for("register"))
             if user.first():
+                # als de email is geregistreerd
                 link = f"/reset_password/{user.first().id}"
                 flash(f'Wachtwoord reset voor het account: {form.email.data} is aangevraagd.\n'
                       f'De link is: ', link)
                 return redirect(url_for("reset_password"))
         else:
+            # als de form niet is ingevuld
             flash("Vul een geldig email en wachtwoord in!", "error")
             return redirect(url_for("reset_password"))
-    return render_template("auth/reset_password_request.html", form=form)
+    else:
+        # als de form niet is beantwoord (GET request)
+        return render_template("auth/reset_password_request.html", form=form)
 
 
 @app.route('/reset_password/<token>', methods=["GET", "POST"])
 def reset_password_token(token):
-    form = resetForm()
+    """Deze functie wordt aangeroepen als de user daadwerkelijk een wachtwoord reset link bezoekt"""	
+    form = ResetForm()
     user = User.query.filter_by(id=token)
+    # check of de token klopt
     if user.all():
+        # check of de form is beantwoord (POST request)
         if form.validate_on_submit():
             if form.password.data == form.rep_password.data:
+                # als de wachtwoorden overeen komen
                 user = User.query.get(token)
                 user.change_password(form.password.data)
                 db.session.add(user)
@@ -128,10 +160,13 @@ def reset_password_token(token):
                 flash("Wachtwoord succesvol gereset!", "info")
                 return redirect(url_for("login"))
             else:
+                # als de wachtwoorden niet overeen komen
                 flash("De wachtwoorden komen niet overeen!", "error")
                 return redirect(url_for("reset_password"))
+        # als de form niet is beantwoord (GET request)
         return render_template("auth/reset_password.html", form=form)
     else:
+        # als de token niet klopt
         flash("Ongeldige link!", "error")
         return redirect(url_for("reset_password"))
 
@@ -139,16 +174,19 @@ def reset_password_token(token):
 @app.route('/boek', methods=["GET"])
 @login_required
 def boek_inv():
+    """Deze functie wordt aangeroepen als de user naar de boek pagina gaat zonder een bungalow te selecteren"""
     return redirect(url_for("bungalows"))
 
 
 @app.route('/boek/<token>', methods=["GET", "POST"])
 @login_required
 def boek(token):
-    form = boekForm(week=datetime.date.today().isocalendar().week)
+    """Deze functie wordt aangeroepen als de user naar de boek pagina gaat met een bungalow id in de url"""
+    form = BoekForm(week=datetime.date.today().isocalendar().week)
     bungalow = []
-    bungalows_info = (db.session.query(bungalow_data, bungalow_types).join(bungalow_types)
-                      .filter(bungalow_data.id == token).first())
+    bungalows_info = (db.session.query(BungalowData, BungalowTypes).join(BungalowTypes)
+                      .filter(BungalowData.id == token).first())
+    # check of de bungalow id klopt
     if bungalows_info:
         data, types = bungalows_info
         bungalow_info = {"img": "/static/img/stock.png", "title": data.naam, "prijs": types.prijs,
@@ -157,28 +195,33 @@ def boek(token):
                                               "Praktisch", "Gezellig", "Stijlvol", "Duurzaam"]), "id": data.id}
         bungalow.append(bungalow_info)
         if form.validate_on_submit():
+            # check of de form is beantwoord (POST request)
             week = form.week.data
             user_id = current_user.id
-            geboekt = booking_data(user_id, token, week)
+            geboekt = BookingData(user_id, token, week)
             db.session.add(geboekt)
             db.session.commit()
             flash(f"Bungalow '{data.naam}' is geboekt voor week {week}")
             return redirect(url_for("boekingen"))
-        return render_template("booking/boek.html", bungalow_data=bungalow, form=form,
+        # als de form niet is beantwoord (GET request)
+        return render_template("booking/boek.html", BungalowData=bungalow, form=form,
                                week=datetime.date.today().isocalendar().week)
     else:
+        # als de bungalow id niet klopt
         return redirect(url_for("bungalows"))
 
 
 @app.route('/boekingen', methods=["GET"])
 @login_required
 def boekingen():
+    """Deze functie wordt aangeroepen als de user naar de boekingen pagina gaat, en geeft de boekingen van de user weer"""
     bungalow = []
-    booking_info = (db.session.query(booking_data, bungalow_data, bungalow_types).select_from(booking_data).
-                    join(bungalow_types, booking_data.bungalow_id == bungalow_data.id)
-                    .join(bungalow_data, bungalow_data.type_id == bungalow_types.id)
-                    .filter(booking_data.gast_id == current_user.id).order_by(booking_data.week.asc()).all())
+    booking_info = (db.session.query(BookingData, BungalowData, BungalowTypes).select_from(BookingData).
+                    join(BungalowTypes, BookingData.bungalow_id == BungalowData.id)
+                    .join(BungalowData, BungalowData.type_id == BungalowTypes.id)
+                    .filter(BookingData.gast_id == current_user.id).order_by(BookingData.week.asc()).all())
     if booking_info:
+        # check of de user boekingen heeft
         for bookings, data, types in booking_info:
             bungalow_info = {"img": "/static/img/stock.png", "title": data.naam, "prijs": types.prijs,
                              "aantal_pers": types.aantal, "grote": randint(types.aantal * 45, types.aantal * 55),
@@ -189,31 +232,36 @@ def boekingen():
         return render_template("booking/boekingen.html", bungalow_data=bungalow,
                                week=datetime.date.today().isocalendar().week)
     else:
+        # als de user geen boekingen heeft
         return render_template("booking/boekingen.html")
 
 
 @app.route('/wijzig', methods=["GET"])
 @login_required
 def wijzig_inv():
+    """Deze functie wordt aangeroepen als de user naar de wijzig pagina gaat zonder een bungalow te selecteren"""
     return redirect(url_for("boekingen"))
 
 
 @app.route('/wijzig/<bungalow>', methods=["GET"])
 @login_required
 def wijzig_inv_inv():
+    """Deze functie wordt aangeroepen als de user naar de wijzig pagina gaat zonder een booking token te selecteren"""
     return redirect(url_for("boekingen"))
 
 
 @app.route('/wijzig/<bungalow>/<token>', methods=["GET", "POST"])
 @login_required
 def wijzig(bungalow, token):
-    form = wijzigForm(week=datetime.date.today().isocalendar().week)
+    """Deze functie wordt aangeroepen als de user naar de wijzig pagina gaat met een bungalow en booking token in de url"""
+    form = WijzigForm(week=datetime.date.today().isocalendar().week)
     bungalow = []
-    booking_info = (db.session.query(booking_data, bungalow_data, bungalow_types).select_from(booking_data).
-                    join(bungalow_types, booking_data.bungalow_id == bungalow_data.id)
-                    .join(bungalow_data, bungalow_data.type_id == bungalow_types.id).filter(booking_data.id == token)
+    booking_info = (db.session.query(BookingData, BungalowData, BungalowTypes).select_from(BookingData).
+                    join(BungalowTypes, BookingData.bungalow_id == BungalowData.id)
+                    .join(BungalowData, BungalowData.type_id == BungalowTypes.id).filter(BookingData.id == token)
                     .first())
     if booking_info:
+        # check of de booking token klopt
         bookings, data, types = booking_info
         bungalow_info = {"img": "/static/img/stock.png", "title": data.naam, "prijs": types.prijs,
                          "aantal_pers": types.aantal, "grote": randint(types.aantal * 45, types.aantal * 55),
@@ -222,48 +270,57 @@ def wijzig(bungalow, token):
                          "week": bookings.week}
         bungalow.append(bungalow_info)
         if form.validate_on_submit():
+            # check of de form is beantwoord (POST request)
             week = form.week.data
             if week == "annuleer boeking":
+                # check of de user de boeking wilt annuleren
                 flash(f"Boeking van bungalow '{data.naam}' is geannuleerd voor week {week}")
-                boeking_new = booking_data.query.get(token)
+                boeking_new = BookingData.query.get(token)
                 db.session.delete(boeking_new)
                 db.session.commit()
                 return redirect(url_for("boekingen"))
             else:
-                boeking_new = booking_data.query.get(token)
+                # check of de user de boeking week wilt wijzigen
+                boeking_new = BookingData.query.get(token)
                 boeking_new.week = week
                 db.session.add(boeking_new)
                 db.session.commit()
                 flash(f"Bungalow: '{data.naam}' geboekt voor week: {week} door: {current_user.email}")
                 return redirect(url_for("boekingen"))
+        # als de form niet is beantwoord (GET request)
         return render_template("booking/wijzig.html", bungalow_data=bungalow, form=form,
                                week=datetime.date.today().isocalendar().week)
     else:
+        # als de booking token niet klopt
         return render_template("booking/wijzig.html")
 
 
 @app.route('/annuleer', methods=["GET"])
 @login_required
 def annuleer_inv():
+    """Deze functie wordt aangeroepen als de user naar de annuleer pagina gaat zonder een bungalow te selecteren"""
     return redirect(url_for("boekingen"))
 
 
 @app.route('/annuleer/<bungalow>', methods=["GET"])
 @login_required
 def annuleer_inv_inv():
+    """Deze functie wordt aangeroepen als de user naar de annuleer pagina gaat zonder een booking token te selecteren"""
     return redirect(url_for("boekingen"))
 
 
 @app.route('/annuleer/<bungalow>/<token>', methods=["GET", "POST"])
 @login_required
 def annuleer(bungalow, token):
-    form = annuleerForm()
+    """Deze functie wordt aangeroepen als de user naar de annuleer pagina gaat met een bungalow en booking token in de url"""
+    form = AnnuleerForm()
     bungalow = []
-    booking_info = (db.session.query(booking_data, bungalow_data, bungalow_types).select_from(booking_data).
-                    join(bungalow_types, booking_data.bungalow_id == bungalow_data.id)
-                    .join(bungalow_data, bungalow_data.type_id == bungalow_types.id).filter(booking_data.id == token)
+    booking_info = (db.session.query(BookingData, BungalowData, BungalowTypes).select_from(BookingData).
+                    join(BungalowTypes, BookingData.bungalow_id == BungalowData.id)
+                    .join(BungalowData, BungalowData.type_id == BungalowTypes.id).filter(BookingData.id == token)
                     .first())
     if booking_info:
+        # check of de booking token klopt
         bookings, data, types = booking_info
         bungalow_info = {"img": "/static/img/stock.png", "title": data.naam, "prijs": types.prijs,
                          "aantal_pers": types.aantal, "grote": randint(types.aantal * 45, types.aantal * 55),
@@ -272,28 +329,34 @@ def annuleer(bungalow, token):
                          "week": bookings.week}
         bungalow.append(bungalow_info)
         if form.validate_on_submit():
+            # check of de form is beantwoord (POST request)
             confirm = form.confirm.data
             if confirm == "Ja":
+                # check of de user de boeking wilt annuleren
                 flash(f"Boeking van bungalow '{data.naam}' is geannuleerd voor week {bookings.week}")
-                boeking_new = booking_data.query.get(token)
+                boeking_new = BookingData.query.get(token)
                 db.session.delete(boeking_new)
                 db.session.commit()
                 return redirect(url_for("boekingen"))
             else:
+                # check of de user de boeking wilt behouden
                 flash(f"Bungalow: '{data.naam}' is niet geannuleerd!", "info")
                 return redirect(url_for("boekingen"))
+        # als de form niet is beantwoord (GET request)
         return render_template("booking/annuleer.html", bungalow_data=bungalow, form=form,
                                week=datetime.date.today().isocalendar().week)
     else:
-        return render_template("booking/annuleer.html")
+        # als de booking token niet klopt
+        return redirect(url_for("boekingen"))
 
 
 @app.route('/bungalows', methods=["GET"])
 def bungalows():
+    """Deze functie wordt aangeroepen als de user naar de bungalows pagina gaat, en geeft de bungalows weer"""
     bungalow_lijst = []
-    bungalow = db.session.query(bungalow_data, bungalow_types).join(bungalow_types).all()
+    bungalow = db.session.query(BungalowData, BungalowTypes).join(BungalowTypes).all()
     if not bungalow:
-        # vul de database als deze leeg is
+        # check of de database leeg is (voor testen)
         populate()
         flash("De database is weer gevuld, herlaad de pagina als je niks ziet!", "error")
         redirect(url_for("bungalows"))
@@ -303,6 +366,7 @@ def bungalows():
                         "opmerking": choice(["Knus", "Sfeervol", "Comfortabel", "Rustiek", "Modern", "Landelijk",
                                              "Praktisch", "Gezellig", "Stijlvol", "Duurzaam"]), "id": data.id}
         bungalow_lijst.append(bungalow_dat)
+    # laat alle bungalows zien die in de database staan
     return render_template("booking/bungalows.html", bungalow_data=bungalow_lijst)
 
 
