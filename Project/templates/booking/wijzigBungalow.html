@@ -34,20 +34,10 @@ huisjes - Zee en Duin
                         <div class="clear"></div>
                         <div class="product_info">geschikt voor: {{ bungalow.aantal_pers }} personen</div>
                         <div class="product_info">grote van: {{ bungalow.grote }} m2</div>
-                        <div class="product_info">Geboekt voor week: {{ bungalow.week }}</div>
-                        <div class="clear"></div>
-                            <div class="week_button">
-                                <a href="/wijzig/{{ bungalow.booking_id }}" class="link-warning link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Verander geboekte week</a>
-                            </div>
-                            <div class="bungalow_button">
-                                <a href="/boek/{{ bungalow.booking_id }}" class="link-info link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Verander geboekte bungalow</a>
-                            </div>
-                            <div class="additional_button">
-                                <a href="/boek/{{ bungalow.id }}" class="link-success link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Boek nog een week</a>
-                            </div>
-                            <div class="annuleer_button">
-                                <a href="/annuleer/{{ bungalow.booking_id }}" class="link-danger link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">Annuleer boeking</a>
-                            </div>
+                        <div class="clear"></div><br>
+                            {{ bungalow.form.hidden_tag() }}
+                            {{ bungalow.form.bungalow_id() }}
+                            {{ bungalow.form.boek() }}
                         </div>
                     </div>
                 </form>

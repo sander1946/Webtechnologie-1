@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, BooleanField, SubmitField, StringField, TelField, ValidationError, SelectField
+from wtforms import PasswordField, BooleanField, SubmitField, StringField, TelField, ValidationError, SelectField, HiddenField
 from wtforms.validators import Email, Length, EqualTo, InputRequired
 from Project.models import User, BookingData
 from flask import request
@@ -117,4 +117,14 @@ class WijzigForm(FlaskForm):
 class AnnuleerForm(FlaskForm):
     confirm = SelectField("Weet je het zeker?: ", [InputRequired(message="Dit veld is vereist")], choices=["Nee", "Ja"], coerce=str)
     submit = SubmitField("Bevestig",
+                         render_kw={"class": "btn btn-primary"})
+    
+
+class WijzigBungalowForm(FlaskForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bungalow_id.render_kw = {"value": kwargs["bungalow"]}
+
+    bungalow_id = HiddenField(render_kw={"value": 0})
+    boek = SubmitField("Boek deze bungalow",
                          render_kw={"class": "btn btn-primary"})

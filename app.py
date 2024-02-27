@@ -3,7 +3,7 @@ from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, login_required, logout_user, current_user
 from random import randint, choice
 from Project.models import User, BungalowData, BungalowTypes, BookingData, populate
-from Project.forms import LoginForm, RegisterForm, ResetRequestForm, ResetForm, BoekForm, WijzigForm, AnnuleerForm
+from Project.forms import LoginForm, RegisterForm, ResetRequestForm, ResetForm, BoekForm, WijzigForm, AnnuleerForm, WijzigBungalowForm
 import datetime
 
 
@@ -205,6 +205,40 @@ def boek(token):
     else:
         # als de bungalow id niet klopt
         return redirect(url_for("bungalows"))
+    
+
+@app.route('/boek/<bungalow>/<token>', methods=["GET", "POST"])
+@login_required
+def wijzigBungalow(bungalow, token):
+    forms = []
+    week=datetime.date.today().isocalendar().week
+    booking = BookingData.query.filter_by(id=token).first()
+    bungalow_lijst = []
+    booking_data_sub = db.session.query(BookingData.bungalow_id).filter(BookingData.week == booking.week)
+    bungalows = db.session.query(BungalowData, BungalowTypes).join(BungalowTypes).filter(BungalowData.id.notin_(booking_data_sub)).all()
+    if bungalows:
+        for data, types in bungalows:
+            form = WijzigBungalowForm(bungalow = data.id)
+            bungalow_info = {"img": "/static/img/stock.png", "title": data.naam, "prijs": types.prijs,
+                                "aantal_pers": types.aantal, "grote": randint(types.aantal * 45, types.aantal * 55),
+                                "opmerking": choice(["Knus", "Sfeervol", "Comfortabel", "Rustiek", "Modern", "Landelijk",
+                                                    "Praktisch", "Gezellig", "Stijlvol", "Duurzaam"]), "id": data.id, "form": form}
+            bungalow_lijst.append(bungalow_info)
+            if form.validate_on_submit():
+                # check of de form is beantwoord (POST request)
+                boeking_new = BookingData.query.get(token)
+                boeking_new.bungalow_id = form.bungalow_id.data
+                db.session.add(boeking_new)
+                db.session.commit()
+                flash(f"Bungalow: '{data.naam}' geboekt door: {current_user.email}")
+                return redirect(url_for("boekingen"))
+            # als de form niet is beantwoord (GET request)
+    else:
+        flash("Er zijn geen bungalows beschikbaar voor deze week!", "error")
+        return redirect(url_for("boekingen"))
+
+    # laat alle bungalows zien die in de database staan
+    return render_template("booking/wijzigBungalow.html", bungalow_data=bungalow_lijst, forms=forms)
 
 
 @app.route('/boekingen', methods=["GET"])
