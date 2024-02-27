@@ -80,10 +80,6 @@ def login():
 def register():
     """Deze functie wordt aangeroepen als de user naar de register pagina gaat"""
     form = RegisterForm()
-    # check of de user al is ingelogd
-    if current_user.is_authenticated:
-        flash("Je bent al ingelogd!", "info")
-        return redirect(url_for("index"))
     # check of de form is beantwoord (POST request)
     if form.validate_on_submit():
         # check of de form is ingevuld
@@ -204,7 +200,7 @@ def boek(token):
             flash(f"Bungalow '{data.naam}' is geboekt voor week {week}")
             return redirect(url_for("boekingen"))
         # als de form niet is beantwoord (GET request)
-        return render_template("booking/boek.html", BungalowData=bungalow, form=form,
+        return render_template("booking/boek.html", bungalow_data=bungalow, form=form,
                                week=datetime.date.today().isocalendar().week)
     else:
         # als de bungalow id niet klopt

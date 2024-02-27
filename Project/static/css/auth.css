@@ -49,3 +49,13 @@ form {
   opacity: 0.8;
 }
 
+#password {
+    margin-left: 79px;
+    width: 200px;
+}
+
+#rep_password {
+    margin-left: 10px;
+    width: 200px;
+}
+
