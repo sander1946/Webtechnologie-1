@@ -23,7 +23,7 @@ Dit is een Flask-project gemaakt voor de Webtechnologie 1 opdracht bij Hbo-ICT, 
 
 ## Gebruik
 
-1. Ga naar de website door `http://localhost:80` te bezoeken in je webbrowser.
+1. Ga naar de website door `http://localhost:5000` te bezoeken in je webbrowser.
 2. Registreer een nieuw account of log in met je bestaande inloggegevens.
 3. Blader door de beschikbare bungalows en selecteer er een om te boeken.
 4. Geef de vereiste gegevens op en voltooi het boekings prosses
