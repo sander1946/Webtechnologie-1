@@ -19,7 +19,7 @@ def feedback():
         stuurt de user terug naar de pagina waar ze vandaan kwamen of weer naar de home pagina"""
     if request.method == "POST":
         flash(f"Het bericht is verzonden!")
-        next_page = request.args.get("next")
+        next_page: str | None = request.args.get("next")
         if next_page is not None:
             return redirect(next_page)
     return redirect(url_for("index"))
@@ -47,7 +47,7 @@ def login():
     if form.validate_on_submit():
         # check of de form is ingevuld
         if form.email.data != "" and form.wachtwoord.data != "":
-            user = User.query.filter_by(email=form.email.data).first()
+            user: User = User.query.filter_by(email=form.email.data).first()
             # check of de email is geregistreerd
             if user is None:
                 flash(f"De email en/of wachtwoord is incorrect! "
@@ -58,7 +58,7 @@ def login():
                 login_user(user, remember=form.remember.data)
                 flash(f"Succesvol ingelogd!", "info")
                 # Als de user van een andere pagina komt dan de login pagina, stuur hem dan terug naar die pagina
-                next_page = request.args.get('next')
+                next_page: str | None = request.args.get('next')
                 if next_page is None or not next_page[0] == '/':
                     next_page = url_for('bungalows')
                 return redirect(next_page)
@@ -85,7 +85,7 @@ def register():
         # check of de form is ingevuld
         if (form.email.data != "" and form.wachtwoord.data != "" and form.voornaam.data != ""
                 and form.achternaam.data != "" and form.telefoon.data != ""):
-            user = User.query.filter_by(email=form.email.data)
+            user: User = User.query.filter_by(email=form.email.data)
             # check of de email al is geregistreerd
             if not user.all():
                 new_cur = User(email=form.email.data,
@@ -110,7 +110,7 @@ def register():
         return render_template("auth/register.html", form=form)
 
 
-@app.route('/reset_password', methods=["GET", "POST"])
+@app.route('/reset_password', methods=["GET", "POST"]) # type: ignore
 def reset_password():
     """Deze functie wordt aangeroepen als de user naar de reset password pagina gaat"""
     form = ResetRequestForm()
@@ -118,14 +118,14 @@ def reset_password():
     if form.validate_on_submit():
         # check of de form is ingevuld
         if form.email.data != "":
-            user = User.query.filter_by(email=form.email.data)
+            user: User = User.query.filter_by(email=form.email.data)
             if not user.all():
                 # als de email niet is geregistreerd
                 flash(f"Dit email heeft geen nog geen account, maak er een aan!", "error")
                 return redirect(url_for("register"))
             if user.first():
                 # als de email is geregistreerd
-                link = f"/reset_password/{user.first().id}"
+                link: str = f"/reset_password/{user.first().id}"
                 flash(f'Wachtwoord reset voor het account: {form.email.data} is aangevraagd.\n'
                       f'De link is: ', link)
                 return redirect(url_for("reset_password"))
@@ -139,10 +139,10 @@ def reset_password():
 
 
 @app.route('/reset_password/<token>', methods=["GET", "POST"])
-def reset_password_token(token):
+def reset_password_token(token: str):
     """Deze functie wordt aangeroepen als de user daadwerkelijk een wachtwoord reset link bezoekt"""	
     form = ResetForm()
-    user = User.query.filter_by(id=token)
+    user: User = User.query.filter_by(id=token)
     # check of de token klopt
     if user.all():
         # check of de form is beantwoord (POST request)
@@ -179,7 +179,7 @@ def boek_inv():
 def boek(token):
     """Deze functie wordt aangeroepen als de user naar de boek pagina gaat met een bungalow id in de url"""
     form = BoekForm(week=datetime.date.today().isocalendar().week)
-    bungalow = []
+    bungalow: list = []
     bungalows_info = (db.session.query(BungalowData, BungalowTypes).join(BungalowTypes)
                       .filter(BungalowData.id == token).first())
     # check of de bungalow id klopt
@@ -192,8 +192,8 @@ def boek(token):
         bungalow.append(bungalow_info)
         if form.validate_on_submit():
             # check of de form is beantwoord (POST request)
-            week = form.week.data
-            user_id = current_user.id
+            week: str = form.week.data
+            user_id: int = current_user.id
             geboekt = BookingData(user_id, token, week)
             db.session.add(geboekt)
             db.session.commit()
@@ -210,10 +210,10 @@ def boek(token):
 @app.route('/boek/<bungalow>/<token>', methods=["GET", "POST"])
 @login_required
 def wijzigBungalow(bungalow, token):
-    forms = []
-    booking = BookingData.query.filter_by(id=token).first()
-    bungalow_lijst = []
-    booking_data_sub = db.session.query(BookingData.bungalow_id).filter(BookingData.week == booking.week)
+    forms: list = []
+    bungalow_lijst: list = []
+    booking: BookingData = BookingData.query.filter_by(id=token).first()
+    booking_data_sub = db.session.query(BookingData.bungalow_id).filter(BookingData.week == booking.week) # type: ignore
     bungalows = db.session.query(BungalowData, BungalowTypes).join(BungalowTypes).filter(BungalowData.id.notin_(booking_data_sub)).all()
     if bungalows:
         for data, types in bungalows:
@@ -225,7 +225,7 @@ def wijzigBungalow(bungalow, token):
             bungalow_lijst.append(bungalow_info)
             if form.validate_on_submit():
                 # check of de form is beantwoord (POST request)
-                boeking_new = BookingData.query.get(token)
+                boeking_new: BookingData = BookingData.query.get(token)
                 boeking_new.bungalow_id = form.bungalow_id.data
                 db.session.add(boeking_new)
                 db.session.commit()
@@ -244,7 +244,7 @@ def wijzigBungalow(bungalow, token):
 @login_required
 def boekingen():
     """Deze functie wordt aangeroepen als de user naar de boekingen pagina gaat, en geeft de boekingen van de user weer"""
-    bungalow = []
+    bungalow: list = []
     booking_info = (db.session.query(BookingData, BungalowData, BungalowTypes).select_from(BookingData).
                     join(BungalowTypes, BookingData.bungalow_id == BungalowData.id)
                     .join(BungalowData, BungalowData.type_id == BungalowTypes.id)
@@ -284,7 +284,7 @@ def wijzig_inv_inv():
 def wijzig(bungalow, token):
     """Deze functie wordt aangeroepen als de user naar de wijzig pagina gaat met een bungalow en booking token in de url"""
     form = WijzigForm(week=datetime.date.today().isocalendar().week)
-    bungalow = []
+    bungalow: list = []
     booking_info = (db.session.query(BookingData, BungalowData, BungalowTypes).select_from(BookingData).
                     join(BungalowTypes, BookingData.bungalow_id == BungalowData.id)
                     .join(BungalowData, BungalowData.type_id == BungalowTypes.id).filter(BookingData.id == token)
@@ -300,7 +300,7 @@ def wijzig(bungalow, token):
         bungalow.append(bungalow_info)
         if form.validate_on_submit():
             # check of de form is beantwoord (POST request)
-            week = form.week.data
+            week: str = form.week.data
             if week == "annuleer boeking":
                 # check of de user de boeking wilt annuleren
                 flash(f"Boeking van bungalow '{data.naam}' is geannuleerd voor week {week}")
@@ -310,7 +310,7 @@ def wijzig(bungalow, token):
                 return redirect(url_for("boekingen"))
             else:
                 # check of de user de boeking week wilt wijzigen
-                boeking_new = BookingData.query.get(token)
+                boeking_new: BookingData = BookingData.query.get(token)
                 boeking_new.week = week
                 db.session.add(boeking_new)
                 db.session.commit()
@@ -343,7 +343,7 @@ def annuleer_inv_inv():
 def annuleer(bungalow, token):
     """Deze functie wordt aangeroepen als de user naar de annuleer pagina gaat met een bungalow en booking token in de url"""
     form = AnnuleerForm()
-    bungalow = []
+    bungalow: list = []
     booking_info = (db.session.query(BookingData, BungalowData, BungalowTypes).select_from(BookingData).
                     join(BungalowTypes, BookingData.bungalow_id == BungalowData.id)
                     .join(BungalowData, BungalowData.type_id == BungalowTypes.id).filter(BookingData.id == token)
@@ -359,7 +359,7 @@ def annuleer(bungalow, token):
         bungalow.append(bungalow_info)
         if form.validate_on_submit():
             # check of de form is beantwoord (POST request)
-            confirm = form.confirm.data
+            confirm: str = form.confirm.data
             if confirm == "Ja":
                 # check of de user de boeking wilt annuleren
                 flash(f"Boeking van bungalow '{data.naam}' is geannuleerd voor week {bookings.week}")
@@ -382,7 +382,7 @@ def annuleer(bungalow, token):
 @app.route('/bungalows', methods=["GET"])
 def bungalows():
     """Deze functie wordt aangeroepen als de user naar de bungalows pagina gaat, en geeft de bungalows weer"""
-    bungalow_lijst = []
+    bungalow_lijst: list = []
     bungalow = db.session.query(BungalowData, BungalowTypes).join(BungalowTypes).all()
     if not bungalow:
         # check of de database leeg is (voor testen)
